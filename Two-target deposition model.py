@@ -14,19 +14,19 @@ S_Ti = 0.4          #Коэффициент распыления Ti для E(Ar+
 S_Ti02 = 0.015      #Коэффициент распыления Ti02 для E(Ar+) = 400 эВ
 S_Cr = 1.0          #Коэффициент распыления Cr для E(Ar+) = 400 эВ
 S_Cr2O3 = 0.25      #Коэффициент распыления Cr2O3 для E(Ar+) = 400 эВ
-S_O2 = 50/1000           #Скорость перекачки (м3/с)
+S_O2 = 50/1000      #Скорость перекачки (м3/с)
 alpha0_Ti = 1.0     #Коэффициент задерживания молекулы кислорода на прореагировавшей поверхности Ti
 alpha0_TiO2 = 0.01  #Коэффициент задерживания молекулы кислорода на прореагировавшей поверхности TiO2
 alpha0_Cr = 1.0     #Коэффициент задерживания молекулы кислорода на прореагировавшей поверхности Cr
 alpha0_Cr2O3 = 0.01 #Коэффициент задерживания молекулы кислорода на прореагировавшей поверхности Cr2O3
 J_Ti = 60           #Плотность ионов аргона, вызывающих распыление с поверхности мишени Ti
-J_Cr = 40           #Плотность ионов аргона, вызывающих распыление с поверхности мишени Cr
+J_Cr = 40           #Плотность ионов аргона, вызывающихщих распыление с поверхности мишени Cr
 
 df = pd.DataFrame([])
 
 moleclar_mass_O2 = 32/cnst.Avogadro
 
-df["P_O2"] = np.arange(start = 0.3, stop = 0, step = -0.001)
+df["P_O2"] = np.arange(start = 0, stop = 0.35, step = 0.001)
 df["F"] = sp.F_of_P(df.P_O2, 273, moleclar_mass_O2)
 
 df["tetha_t_Ti"] = sp.theta_t_of_alpha(k = 2, n = 2, alpha0_target = alpha0_Ti,
@@ -56,6 +56,8 @@ df["q_c_Ti"] = sp.q_of_tetha(alpha0_target = alpha0_Ti, alpha0_compound = alpha0
 #Поток O2 на подложкодержатель и стенки, обращенные к Cr мишени (Pa*m^3/s)
 df["q_c_Cr"] = sp.q_of_tetha(alpha0_target = alpha0_Cr, alpha0_compound = alpha0_Cr2O3, F = df.F, theta = df.tetha_c_Cr, A = A_Cr)
 
+df["q_t_c"] = df.q_t_Ti + df.q_t_Cr + df.q_c_Ti + df.q_c_Cr
+
 #Поток O2 в насос
 df["q_P"] = sp.q_of_P(P = df.P_O2, S = S_O2)
 
@@ -69,7 +71,28 @@ df["R_Ti"] = sp.R_of_tetha(J = J_Ti, S_compound = S_Ti02, S_target = S_Ti, tetha
 df["R_Cr"] = sp.R_of_tetha(J = J_Cr, S_compound = S_Cr2O3, S_target = S_Cr, tetha_t = df.tetha_t_Cr)
 
 df.plot(x = "flow_rate", y = "P_O2")
-df.plot(x = "R_Ti", y = "P_O2")
-df.plot(x = "R_Cr", y = "P_O2")
+# df.plot(x = "R_Ti")
+# df.plot(x = "R_Cr")
+df[["P_O2", "R_Ti", "R_Cr"]].plot(x = "P_O2")
 
+df["t_Ti"] = sp.t_of_F(k = 2, n = 2, J = J_Ti, alpha0_target = alpha0_Ti, F = df.F, S_compound = S_Ti02)
+
+df["t_Cr"] = sp.t_of_F(k = 2, n = 1.5, J = J_Cr, alpha0_target = alpha0_Cr, F = df.F, S_compound = S_Cr2O3)
+
+df["c_Ti"] = sp.c_of_F(k = 2, n = 2, alpha0_target = alpha0_Ti,
+                       alpha0_compound = alpha0_TiO2, F = df.F, J = J_Ti, S_target = S_Ti,
+                       S_compound = S_Ti02, A_t = A_Ti, A_c = A_chamber_Ti)
+
+df["c_Cr"] = sp.c_of_F(k = 2, n = 1.5, alpha0_target = alpha0_Cr,
+                       alpha0_compound = alpha0_Cr2O3, F = df.F, J = J_Cr, S_target = S_Cr,
+                       S_compound = S_Cr2O3, A_t = A_Cr, A_c = A_chamber_Cr)
+K = sp.K_calc(273, M0 = moleclar_mass_O2)
+
+df["q_O2"] = sp.q_of_F_t_c(F = df.F, t_1 = df.t_Ti, t_2 = df.t_Cr, c_1 = df.c_Ti, c_2 = df.c_Cr,
+                           A_t1 = A_Ti, A_t2 = A_Cr, A_c1 = A_chamber_Ti, A_c2 = A_chamber_Cr,
+                           alpha0_target1 = alpha0_Ti, alpha0_target2 = alpha0_Cr, S_a = S_O2*K)
+
+df[["P_O2", "t_Ti", "t_Cr", "c_Ti", "c_Cr"]].plot(x = "P_O2")
+df["flow_rate"] = df.q_O2 / df.P_O2
+df.plot(x = "flow_rate", y = "P_O2")
 #%%
