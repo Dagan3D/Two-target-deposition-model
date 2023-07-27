@@ -24,7 +24,7 @@ J_Cr = 40           #Плотность ионов аргона, вызываю�
 
 df = pd.DataFrame([])
 
-moleclar_mass_O2 = 16/cnst.Avogadro
+moleclar_mass_O2 = 32/cnst.Avogadro
 
 df["P_O2"] = np.arange(start = 0.3, stop = 0, step = -0.001)
 df["F"] = sp.F_of_P(df.P_O2, 273, moleclar_mass_O2)
@@ -64,7 +64,12 @@ df["q_O2"] = df.q_t_Ti + df.q_t_Cr + df.q_c_Ti + df.q_c_Cr + df.q_P
 
 df["flow_rate"] = df.q_O2 * 1E3
 
+df["R_Ti"] = sp.R_of_tetha(J = J_Ti, S_compound = S_Ti02, S_target = S_Ti, tetha_t = df.tetha_t_Ti)
+
+df["R_Cr"] = sp.R_of_tetha(J = J_Cr, S_compound = S_Cr2O3, S_target = S_Cr, tetha_t = df.tetha_t_Cr)
 
 df.plot(x = "flow_rate", y = "P_O2")
+df.plot(x = "R_Ti", y = "P_O2")
+df.plot(x = "R_Cr", y = "P_O2")
 
 #%%

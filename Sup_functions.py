@@ -155,13 +155,38 @@ def q_of_tetha (alpha0_target, alpha0_compound, F, theta, A, K = 3.7e-21):
 
     Returns
     -------
-    Поток потребляемого реакционного газа.
+    Поток потребляемого реакционного газа (Pa*m^3/s).
 
     """
     q = K * ((alpha0_target * F * (1 - theta)) + (alpha0_compound * F * theta)) * A
     return q
 
 
+def R_of_tetha (J, S_compound, S_target, tetha_t):
+    """
+    Возвращает скорость распления мишени
+
+    Parameters
+    ----------
+    J : TYPE
+        Плотность потока ионов аргона распыляющих мешень (молекул/(м2*с)).
+    S_compound : TYPE
+        Коэффициент распыления прореагировавшего материала.
+    S_target : TYPE
+        Коэффициент распыления материала мишени.
+    tetha_t : TYPE
+        Доля прореагировавшей поверхности мишени.
+
+    Returns
+    -------
+    R : TYPE
+        Скорость распления мишени (молекул/(м2*с)).
+
+    """
+        
+    Je = J / cnst.elementary_charge
+    R = Je * (S_compound * tetha_t  +  S_target * (1 - tetha_t))
+    return R
 
 
 if __name__ == "__main__":
