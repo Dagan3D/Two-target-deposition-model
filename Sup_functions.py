@@ -219,7 +219,7 @@ def t_of_F (k, n, J, alpha0_target, F, S_compound):
     a = kn * alpha0_target * F
     b = Je * S_compound
     
-    t = (a/b + 1) ** 1
+    t = (a/b + 1)**-1
     return t
 
 def c_of_F (k, n,  alpha0_target, alpha0_compound, F, J, S_target, S_compound, A_t, A_c):
@@ -256,11 +256,11 @@ def c_of_F (k, n,  alpha0_target, alpha0_compound, F, J, S_target, S_compound, A
 
     """
     kn = k / n
-    eF = cnst.elementary_charge * F
+    eF = cnst.elementary_charge * F  
     A_t_c = A_t / A_c
     
     a = (S_target/S_compound) * (A_t_c)
-    b1 = kn**2 * alpha0_target**2 * (eF / (J * S_compound))**2
+    b1 = (kn * alpha0_target * eF / (J * S_compound))**2
     b2 = eF / (J * S_compound) * (kn * alpha0_target + A_t_c * kn * alpha0_target)
     b3 = S_target/S_compound * A_t_c
     
@@ -286,7 +286,7 @@ def K_calc (T, M0, K1 = 3.7e-21):
         DESCRIPTION.
 
     """
-    K = math.sqrt(2 * cnst.pi * cnst.Boltzmann * T * M0) / K1
+    K = math.sqrt(2 * cnst.pi * cnst.Boltzmann * T * M0)/K1
     return K
 
 def q_of_F_t_c (F, t_1, t_2, c_1, c_2, 
@@ -340,6 +340,69 @@ def q_of_F_t_c (F, t_1, t_2, c_1, c_2,
 
 
 
+def dq_dp (S, K, t_1, t_2, c_1, c_2,
+               A_t1, A_t2, A_c1, A_c2,
+               S_target_1, S_compound_1,
+               S_target_2, S_compound_2,
+               alpha0_target1, alpha0_target2):
+    """
+    Вычисляет дифирениал потока кислорода от изменения его давления (Pa*m^3/s).
+
+    Parameters
+    ----------
+    S : TYPE
+        Скорость перекачки (м3/с)
+    K : TYPR
+        Коэфицент пересчёта с чётом тмпературы и массы молекулы газа см. K_calc
+    t_1 : TYPE
+        DESCRIPTION.
+    t_2 : TYPE
+        DESCRIPTION.
+    c_1 : TYPE
+        DESCRIPTION.
+    c_2 : TYPE
+        DESCRIPTION.
+    A_t1 : TYPE
+        Площади поверхности мишени 1.
+    A_t2 : TYPE
+        Площади поверхности мишени 2.
+    A_c1 : TYPE
+        Площадь поверхности держателя подложки + стенки камеры у мишени 1.
+    A_c2 : TYPE
+        Площадь поверхности держателя подложки + стенки камеры у мишени 2.
+    S_target : TYPE
+        Коэффициент распыления материала мишени 1.
+    S_compound : TYPE
+        Коэффициент распыления прореагировавшего материала 1.
+    S_target : TYPE
+        Коэффициент распыления материала мишени 2.
+    S_compound : TYPE
+        Коэффициент распыления прореагировавшего материала 2.
+    alpha0_target1 : TYPE
+        Коэффициент задерживания молекулы окислителя на непрореагировавшей поверхности мишени 1.
+    alpha0_target2 : TYPE
+        Коэффициент задерживания молекулы окислителя на непрореагировавшей поверхности мишени 2.
+    S_a : TYPE
+        Пересчтаный коэфициент откачки S_a = KS.
+    K1 : TYPE, optional
+        Коэфициент пересчета. The default is 3.7e-21.
+
+    Returns
+    -------
+    dq/dp.
+
+    """
+
+    
+    a1 = alpha0_target1 * A_c1 * c_1**2 * ( (S_compound_1/S_target_1) * (A_c1/A_t1) * ((1 - t_1)/t_1)**2 - 1)
+    a2 = alpha0_target2 * A_c2 * c_2**2 * ( (S_compound_2/S_target_2) * (A_c2/A_t2) * ((1 - t_2)/t_2)**2 - 1)
+    a3 = alpha0_target1 * A_t1 * t_1**2
+    a4 = alpha0_target2 * A_t2 * t_2**2
+    
+    dq_dp = S - (1/K) * (a1 + a2 - a3 - a4)
+    return dq_dp
+
+
 if __name__ == "__main__":
 
     q = q_of_P(10, 20)
@@ -347,14 +410,11 @@ if __name__ == "__main__":
 
     F = F_of_P(10, 273, 16)
     print(F)
-    
+
     theta_t = theta_t_of_alpha(1, 1, 10, 20, 30, 1, 20)
     print(theta_t)
-    
-    theta_с = theta_c_of_alpha(k = 4, n = 3, tetha_t = 10, alpha0_target = 20,
-                               alpha0_compound = 40, F = 1, J = 1,
-                               S_target = 1, S_compound = 1, A_t = 2, A_c = 1)
+
+    theta_с = theta_c_of_alpha(k=4, n=3, tetha_t=10, alpha0_target=20,
+                               alpha0_compound=40, F=1, J=1,
+                               S_target=1, S_compound=1, A_t=2, A_c=1)
     print(theta_с)
-    
-    
-    
