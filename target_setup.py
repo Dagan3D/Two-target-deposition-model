@@ -95,7 +95,7 @@ class target:
         A_t_c = self.A / self.A_chamber
         
         a = (self.S/self.S_compound) * (A_t_c)
-        b1 = (kn * self.alpha0 * eF / (self.J * self.S_compound))**2
+        b1 = (kn * self.alpha0 * (eF / (self.J * self.S_compound)))**2
         b2 = eF / (self.J * self.S_compound) * (kn * self.alpha0 + A_t_c * kn * self.alpha0)
         b3 = self.S/self.S_compound * A_t_c
         

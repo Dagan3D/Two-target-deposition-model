@@ -152,6 +152,24 @@ class model:
         dq_dp = self.S - (1/self.K_calc()) * (a1 + a2 - a3 - a4)
         return dq_dp
     
+    def qt_of_P(self, P, target: ts.target):
+        F = self.F_of_P(P)
+        t = target.t_of_F(F)
+        qt = F * t * target.alpha0 * target.A
+        return qt
+        
+    def qc_of_P(self, P, target: ts.target):
+        F = self.F_of_P(P)
+        c = target.c_of_F(F)
+        qc = F * c * target.alpha0 * target.A_chamber
+        return qc
+    
+    def qS_of_P(self, P):
+        S_a = self.S * self.K_calc()
+        qS = self.F_of_P(P)*S_a
+        return qS
+        
+
     
     
    

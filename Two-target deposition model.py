@@ -33,7 +33,7 @@ mpl.rcParams['axes.linewidth'] = 2
 # alpha0_Cr2O3 = 0.01 #Коэффициент задерживания молекулы кислорода на прореагировавшей поверхности Cr2O3
 # J_Ti = 60           #Плотность ионов аргона, вызывающих распыление с поверхности мишени Ti
 # J_Cr = 40           #Плотность ионов аргона, вызывающихщих распыление с поверхности мишени Cr
-#T = 300
+#T = 273
 
 #%% Расчёт
 
@@ -43,30 +43,38 @@ df["P_O2"] = np.arange(start = 0, stop = 0.32, step = 0.00001)
 
 Ti = ts.target(k = 2, n = 2, A = 0.031, A_chamber = 0.2,
             S = 0.4, S_compound = 0.015,
-            alpha0 = 1.0, alpha0_compound = 0.01, J = 60)
+            alpha0 = 1.0, alpha0_compound = 0.01, J = 100)
 
 Cr = ts.target(k = 4, n = 3, A = 0.031, A_chamber = 0.2,
             S = 1.0, S_compound = 0.25,
-            alpha0 = 1.0, alpha0_compound = 0.01, J = 40)
+            alpha0 = 1.0, alpha0_compound = 0.01, J = 100)
 
-Ti_Cr = Model.model(target_1 = Ti, target_2 = Cr, T = 300, S = 50/1000, moleclar_mass = 32/1000/cnst.Avogadro)
+Ti_Cr = Model.model(target_1 = Ti, target_2 = Cr, T = 273, S = 50*1E-3, moleclar_mass = 32/1000/cnst.Avogadro)
 
 fl_rate = pd.DataFrame()
 fl_rate["P_O2"] = df.P_O2
 
 Sl = pd.DataFrame()
 Sl["P_O2"] = df.P_O2
+df["dq/dP"] = Ti_Cr.dq_dp(df.P_O2)
+df["S_l"] = (Ti_Cr.S - df["dq/dP"])*1000
+Ti.J = 60
+Cr.J = 40
+df["q_O2"] = Ti_Cr.q_of_F_t_c(df.P_O2)/np.sqrt(cnst.pi)
+df["flow_rate"] = df.q_O2 * 1E3
 
-temp_range = [10, 100, 200, 273, 300, 1000, 2000, 3000]
+# temp_range = [10, 100, 200, 273, 300, 1000, 2000, 3000]
 
-for t in temp_range:
-    Ti_Cr.T = t
-    df["q_O2"] = Ti_Cr.q_of_F_t_c(df.P_O2)
-    df["flow_rate"] = df.q_O2 * 1E3
-    df["dq/dP"] = Ti_Cr.dq_dp(df.P_O2)
-    df["S_l"] = (Ti_Cr.S - df["dq/dP"])*1000
-    fl_rate[str(t) + " °K"] = df.flow_rate
-    Sl[str(t) + " °K"] = df.S_l
+# for t in temp_range:
+#     Ti_Cr.T = t
+#     df["dq/dP"] = Ti_Cr.dq_dp(df.P_O2)
+#     df["S_l"] = (Ti_Cr.S - df["dq/dP"])*1000
+#     Ti.J = 100
+#     Cr.J = 100
+#     df["q_O2"] = Ti_Cr.q_of_F_t_c(df.P_O2)
+#     df["flow_rate"] = df.q_O2 * 1E3
+#     fl_rate[str(t) + " °K"] = df.flow_rate
+#     Sl[str(t) + " °K"] = df.S_l
 
 
 #%% Отображение
@@ -74,19 +82,28 @@ df[["P_O2", "S_l"]].plot(x = "P_O2", xlim = [0.0001, 0.05],  ylim = [0, 950], le
 df.plot(x = "flow_rate", y = "P_O2", legend = None, ylabel = r"$P_{O_2}$ (Pa)", xlabel = "Oxygen flow rate (sccm)")
 
 
-for t in temp_range:
-    plt.plot(fl_rate[str(t) + " °K"], fl_rate["P_O2"], label = str(t) + " °K")
-plt.legend()
-plt.ylabel = r"Characteristic function $S_L$ $(L*s^{-1})$"
-plt.xlabel = "Oxygen partial pressure (Pa)"
-plt.show()
+# for t in temp_range:
+#     plt.plot(fl_rate[str(t) + " °K"], fl_rate["P_O2"], label = str(t) + " °K")
+# plt.legend()
+# plt.ylabel = r"Characteristic function $S_L$ $(L*s^{-1})$"
+# plt.xlabel = "Oxygen partial pressure (Pa)"
+# plt.show()
     
 
-for t in temp_range:
-    plt.plot(Sl["P_O2"], Sl[str(t) + " °K"], label = str(t) + " °K")
-plt.legend()
-plt.xlim(-0.00001, 0.05)
-plt.ylim(0, 1200)
-plt.ylabel = r"Characteristic function $S_L$ $(L*s^{-1})$"
-plt.xlabel = "Oxygen partial pressure (Pa)"
-plt.show()
+# for t in temp_range:
+#     plt.plot(Sl["P_O2"], Sl[str(t) + " °K"], label = str(t) + " °K")
+# plt.legend()
+# plt.xlim(-0.00001, 0.05)
+# plt.ylim(0, 1200)
+# plt.ylabel = r"Characteristic function $S_L$ $(L*s^{-1})$"
+# plt.xlabel = "Oxygen partial pressure (Pa)"
+# plt.show()
+
+#%%
+# Ti_Cr.T = 100
+# df["qt1"] = Ti_Cr.qt_of_P(df.P_O2, Ti)/100000/60
+# df["qc1"] = Ti_Cr.qc_of_P(df.P_O2, Ti)/100000/60
+# df["qS"] = Ti_Cr.qS_of_P(df.P_O2)/100000/60
+# df["qt2"] = Ti_Cr.qt_of_P(df.P_O2, Cr)/100000/60
+# df["qc2"] = Ti_Cr.qc_of_P(df.P_O2, Cr)/100000/60
+# df[["P_O2", "qt1", "qc1", "qt2", "qc2", "qS"]].plot(x="P_O2", xlim = (-0.0001, 0.05))
