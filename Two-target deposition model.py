@@ -107,3 +107,16 @@ df.plot(x = "flow_rate", y = "P_O2", legend = None, ylabel = r"$P_{O_2}$ (Pa)", 
 # df["qt2"] = Ti_Cr.qt_of_P(df.P_O2, Cr)/100000/60
 # df["qc2"] = Ti_Cr.qc_of_P(df.P_O2, Cr)/100000/60
 # df[["P_O2", "qt1", "qc1", "qt2", "qc2", "qS"]].plot(x="P_O2", xlim = (-0.0001, 0.05))
+
+#%% Расчёт коэфициента распыления
+Ti.J = 100
+Cr.J = 100
+df["F"] = Ti_Cr.F_of_P(df.P_O2)
+df["R_Ti"] = Ti.R_of_F(df.F)
+df["R_Cr"] = Cr.R_of_F(df.F)
+df[["P_O2", "R_Ti", "R_Cr"]].plot(x = "P_O2")
+
+#%% Расчет соотнощения
+df["v_r_Ti"] = df.R_Ti/(df.R_Ti + df.R_Cr)
+df["v_r_Cr"] = df.R_Cr/(df.R_Ti + df.R_Cr)
+df[["P_O2", "v_r_Ti", "v_r_Cr"]].plot(x = "P_O2", xlim = (0, 0.05))
