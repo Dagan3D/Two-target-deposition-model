@@ -206,13 +206,13 @@ class target:
         N : TYPE
             Колличество осевщего вещества мишении.
         """
+        
         Je = self.J / cnst.elementary_charge
         S_compoud = self.S_compound
         tetha_t = 1 - self.t_of_F(F)
         S = self.S
         A_t = self.A
         A_c = self.A_chamber
-        
         Je = self.J / cnst.elementary_charge
         
         N = (Je * S_compoud * tetha_t * self.t + Je * S * (1-tetha_t) ) * A_t/A_c

@@ -7,6 +7,7 @@ Created on Mon Jul 31 16:51:26 2023
 """
 
 import math
+import numpy as np
 import scipy.constants as cnst
 import target_setup as ts
 
@@ -134,7 +135,7 @@ class model:
         a3 = self.target_1.c_of_F(F) * self.target_1.alpha0 * self.target_1.A_chamber
         a4 = self.target_2.c_of_F(F) * self.target_2.alpha0 * self.target_2.A_chamber
            
-        q_O2 = self.K1 * F * (a1 + a2 + a3 + a4 + S_a)
+        q_O2 = self.K1 * F * (a1 + a2 + a3 + a4 + S_a)/np.sqrt(cnst.pi)
         return q_O2
     
     def dq_dp (self, P):
@@ -268,11 +269,11 @@ class model:
         a_1 = je_1 * S_1 * tetha_t_1 * At_Ac_1                  #Азот из Si3N4 с мишени
         a_2 = je_2 * S_2 * tetha_t_2 * At_Ac_2                  #Азот из MoN с мишени
         
-        b_1 = t_1.alpha0_c * F * (1 - tetha_c_1)                  #Азот захвченыый Si в полёте
-        b_2 = t_2.alpha0_c * F * (1 - tetha_c_2)                  #Азот захвченыый Mo в полёте
+        b_1 = t_1.alpha0_c * F * (1 - tetha_t_1)                  #Азот захвченыый Si в полёте
+        b_2 = t_2.alpha0_c * F * (1 - tetha_t_2)                  #Азот захвченыый Mo в полёте
         
-        c_1 = t_1.alpha0_compound_c * F * tetha_c_1               #Азот захвченыый Si3N4 в полёте  
-        c_2 = t_2.alpha0_compound_c * F * tetha_c_2               #Азот захвченыый MoN в полёте
+        c_1 = t_1.alpha0_compound_c * F * tetha_t_1               #Азот захвченыый Si3N4 в полёте  
+        c_2 = t_2.alpha0_compound_c * F * tetha_t_2               #Азот захвченыый MoN в полёте
                 
         N = a_1 + a_2 + b_1 + b_2 + c_1 + c_2
         #N = N/2
@@ -309,7 +310,7 @@ class model:
         O_Si_2 = F * t_1.alpha0_O2_compound * tetha_c_1
         
         O_Mo_1 = F * (t_2.alpha0_O2 * (1 - tetha_c_2))
-        O_Mo_2 = t_2.alpha0_O2_compound * F * tetha_c_2
+        O_Mo_2 = F * t_2.alpha0_O2_compound  * tetha_c_2
                 
         N = (O_Si_1 + O_Si_2 + O_Mo_1 + O_Mo_2)
         return N

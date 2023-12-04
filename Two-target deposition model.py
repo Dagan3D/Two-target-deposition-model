@@ -60,7 +60,7 @@ df["dq/dP"] = Ti_Cr.dq_dp(df.P_O2)
 df["S_l"] = (Ti_Cr.S - df["dq/dP"])*1000
 Ti.J = 60
 Cr.J = 40
-df["q_O2"] = Ti_Cr.q_of_F_t_c(df.P_O2)/np.sqrt(cnst.pi)
+df["q_O2"] = Ti_Cr.q_of_F_t_c(df.P_O2)
 df["flow_rate"] = df.q_O2 * 1E3
 
 # temp_range = [10, 100, 200, 273, 300, 1000, 2000, 3000]
