@@ -164,17 +164,29 @@ plt.plot(df.P_O2, df.J_Mo)
 plt.legend(["Experiment Mo", "Model"])
 plt.show()
 
+#%% ЧБ Вывод скорости осаждения кремния и молибдена
+plt.scatter(exp_R["P"], y=exp_R.Si, c="black")
+plt.scatter(exp_R["P"], y=exp_R.Mo, c="black")
+df.R_Si /= 600
+df.R_Mo /= 42
+plt.plot(df["P_O2_torr"], df["R_Si"], label="Si", c="black", linestyle = "-")
+plt.plot(df["P_O2_torr"], df["R_Mo"], label="Mo", c="black", linestyle = "--")
+
+plt.title("Скорость осаждения Si и Mo")
+plt.xlabel("Давление, мТорр")
+plt.ylabel("Скорость осаждения, нм/c")
+plt.legend()
+plt.show()
+
 #%% Вывод скорости осаждения кремния и молибдена
 plt.scatter(exp_R["P"], y=exp_R.Si, c=colors_list[0])
 plt.scatter(exp_R["P"], y=exp_R.Mo, c=colors_list[1])
-df.R_Si /= 600
-df.R_Mo /= 42
 plt.plot(df["P_O2_torr"], df["R_Si"], label="Si", c=colors_list[0])
 plt.plot(df["P_O2_torr"], df["R_Mo"], label="Mo", c=colors_list[1])
 
 plt.title("Скорость осаждения Si и Mo")
 plt.xlabel("Давление, мТорр")
-plt.ylabel("Скорость распыления, нм/c")
+plt.ylabel("Скорость осаждения, нм/c")
 plt.legend()
 plt.show()
 
@@ -186,7 +198,7 @@ plt.plot(df["P_O2_torr"], df["R_Mo"], label="Mo", c=colors_list[1])
 
 plt.title("Скорость осаждения Si и Mo")
 plt.xlabel("Давление, мТорр")
-plt.ylabel("Скорость распыления, нм/c")
+plt.ylabel("Скорость осаждения, нм/c")
 plt.legend()
 plt.show()
 
@@ -267,6 +279,7 @@ plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc='lower left',
             ncols=4, mode="expand", borderaxespad=0.)
 
 plt.show()
+
 
 #%% ЧБ версия вывода расёта содержания элементов
 
@@ -448,5 +461,4 @@ plt.text(0.8, 16, r"$J_{Mo}$ = 200 $A/м^{2}$")
 plt.xlim(-0.01, 3.3)
 plt.ylim(-0.01, 60)
 plt.savefig("./image/ЧБ Разные токи Mo.tiff", format = "tiff", dpi = 300)
-plt.show()     
-
+plt.show() 
