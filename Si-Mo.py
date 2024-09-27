@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-Created on Thu Aug 17 15:ЭЛГЕАН27:28 2023
+Created on Thu Aug 17 15:27:28 2023
 
-@author: butmahh``
+@author: butman``
 """
 
 # -*- coding: utf-8 -*-
@@ -13,8 +13,8 @@ import matplotlib.pyplot as plt
 import scipy.constants as cnst
 import matplotlib.pylab as mpl
 from scipy import interpolate
-import target_setup as ts
-import Model
+import Target_setup as ts
+import Deposition_model
 import matplotlib.colors as colors
 
 mpl.rcParams['pdf.fonttype'] = 42
@@ -47,7 +47,7 @@ alpha0_Mo = 0.1
 alpha0_MoN = 0.01
 # Плотность потока ионов аргона, вызывающих распыление с поверхности мишени Si (А*м^-2)
 J_Si = 165
-# Плотность потока ионов аргона, вызывающихщих распыление с поверхности мишени Mo (А*м^-2)
+# Плотность потока ионов аргона, вызывающих распыление с поверхности мишени Mo (А*м^-2)
 J_Mo = 85
 T = 273  # Температура в К
 
@@ -59,7 +59,7 @@ df["P_O2"] = np.arange(start=0.0, stop=0.003 * 133.322368, step=0.00001)
 x_Si = np.array([0, 0.0001, 0.0003, 0.0006, 0.001, 0.0015,
                 0.002, 0.0025, 0.003]) * 133.322368
 y_Si = np.array([0.66, 0.69, 0.72, 0.79, 0.95, 1.0, 1.05, 1.1, 1.14]) / A_Si
-spl = interpolate.UnivariateSpline(x_Si, y_Si, k=2)
+spl = interpolate.UnivariateSpline(x_Si, y_Si, k=1)
 df["J_Si"] = spl(df.P_O2)
 
 # %% Интерполяция силы тока из экспериментаьных данных по Mo
@@ -106,8 +106,8 @@ Mo = ts.target(k=2, n=1, t = 4, A=A_Mo, A_chamber=A_chamber_Mo,
                alpha0_O2 = 0.01, alpha0_O2_compound=0.17,    #Кислород к молибдену
                J=J_Mo, Ro=9300, M = 109.95/1000)
 
-Si_Mo = Model.model(target_1=Si, target_2=Mo, T=273, S = 1200 * 1E-3,
-                    moleclar_mass=28/1000/cnst.Avogadro)
+Si_Mo = Deposition_model.deposition_model(target_1=Si, target_2=Mo, T=273, S = 1200 * 1E-3,
+                moleclar_mass=28/1000/cnst.Avogadro)
 
 # %% Расчёт характеристической функции и потока
 Sl = pd.DataFrame()
@@ -125,7 +125,6 @@ df["R_Mo"] = Mo.R_of_F(Mo.N_target_of_F(df.F), in_nm_s=True)
 
 # %% Вычисление количества веществ в образце
 df["N_Si"]= Si.N_target_of_F(df.F)
-
 df["N_Mo"] = Mo.N_target_of_F(df.F)
 df["N_O2"] = Si_Mo.N_O2_of_P(df.P_O2, P_residual=7e-5*133)
 df["N_N"] = Si_Mo.N_gase_of_P(df.P_O2)[-1]
@@ -280,7 +279,6 @@ plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc='lower left',
 
 plt.show()
 
-
 #%% ЧБ версия вывода расёта содержания элементов
 
 plt.plot(df["P_O2_torr"], df.C_Si, label="Si", c="black", linestyle = "-")
@@ -299,7 +297,7 @@ plt.xlabel("Давление, мТорр")
 plt.ylabel("Содержание элемента, Ат %")
 plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc='lower left',
             ncols=4, mode="expand", borderaxespad=0.)
-plt.savefig("./image/ЧБ Расчёт содержания элекментов.tiff", format = "tiff", dpi = 300)
+plt.savefig("./image/ЧБ Расчёт содержания элементов.tiff", format = "tiff", dpi = 300)
 plt.show()
 
 #%% Экспериментальное содержание элекментов ЧБ
